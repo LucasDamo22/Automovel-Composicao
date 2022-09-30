@@ -1,69 +1,29 @@
-########################################################################
-####################### Makefile Template ##############################
-########################################################################
+SOURCEDIR :=src
+HEADERDIR :=include
+OUTPUTDIR :=bin
+APPNAME := execMain
 
-# Compiler settings - Can be customized.
-CC = g++
-CXXFLAGS = -std=c++11 -Wall
-LDFLAGS = 
+TARGET_DEPS := \
+	$(OUTPUTDIR)/Automovel.o \
+	$(OUTPUTDIR)/Pneu.o \
+	$(OUTPUTDIR)/Motor.o \
+	$(OUTPUTDIR)/main.o 
+	 
+# Add optimization and include flags to the compilation. Compilation 
+# optimizations favor performance over code size.
+#CXXFLAGS := -O3 -march=native -mtune=native -std=c++17 -fmax-errors=5 -flto
 
-# Makefile settings - Can be customized.
-APPNAME = execMain
-EXT = .cpp
-SRCDIR = .
-OBJDIR = exec
+CXXFLAGS := -std=c++17 -ggdb
 
-############## Do not change anything from here downwards! #############
-SRC = $(wildcard $(SRCDIR)/*$(EXT))
-OBJ = $(SRC:$(SRCDIR)/%$(EXT)=$(OBJDIR)/%.o)
-DEP = $(OBJ:$(OBJDIR)/%.o=%.d)
-# UNIX-based OS variables & settings
-RM = rm
-DELOBJ = $(OBJ)
-# Windows OS variables & settings
-DEL = del
-EXE = .exe
-WDELOBJ = $(SRC:$(SRCDIR)/%$(EXT)=$(OBJDIR)\\%.o)
+#pack file into a static library to be used later
+$(OUTPUTDIR)/$(LIBNAME): $(TARGET_DEPS)
+	@ar rcs $(OUTPUTDIR)/$(LIBNAME) $(TARGET_DEPS)
+	@ar -t $(OUTPUTDIR)/$(LIBNAME)
 
-########################################################################
-####################### Targets beginning here #########################
-########################################################################
+#compile all classes into %.o files
+$(OUTPUTDIR)/%.o: $(SOURCEDIR)/%.cpp $(HEADERDIR)/%.hpp 
+	@g++ $(CXXFLAGS) $< -o $@ -c -I$(HEADERDIR)
 
-all: $(APPNAME)
-
-# Builds the app
-$(APPNAME): $(OBJ)
-	$(CC) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
-
-# Creates the dependecy rules
-%.d: $(SRCDIR)/%$(EXT)
-	@$(CPP) $(CFLAGS) $< -MM -MT $(@:%.d=$(OBJDIR)/%.o) >$@
-
-# Includes all .h files
--include $(DEP)
-
-# Building rule for .o files and its .c/.cpp in combination with all .h
-$(OBJDIR)/%.o: $(SRCDIR)/%$(EXT)
-	$(CC) $(CXXFLAGS) -o $@ -c $<
-
-################### Cleaning rules for Unix-based OS ###################
-# Cleans complete project
-.PHONY: clean
+# Remove generated object files and library
 clean:
-	$(RM) $(DELOBJ) $(DEP) $(APPNAME)
-
-# Cleans only all files with the extension .d
-.PHONY: cleandep
-cleandep:
-	$(RM) $(DEP)
-
-#################### Cleaning rules for Windows OS #####################
-# Cleans complete project
-.PHONY: cleanw
-cleanw:
-	$(DEL) $(WDELOBJ) $(DEP) $(APPNAME)$(EXE)
-
-# Cleans only all files with the extension .d
-.PHONY: cleandepw
-cleandepw:
-	$(DEL) $(DEP)
+	@rm -rf $(OUTPUTDIR)/*.o $(OUTPUTDIR)/*.a

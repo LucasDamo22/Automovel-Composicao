@@ -1,4 +1,4 @@
-#include "Pneu.h"
+#include "Pneu.hpp"
 #include <sstream>
 
 Pneu::Pneu(double Pressure, std::string brand) {

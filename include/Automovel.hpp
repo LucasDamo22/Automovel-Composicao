@@ -1,5 +1,5 @@
-#include "Motor.h"
-#include "Pneu.h"
+#include "Motor.hpp"
+#include "Pneu.hpp"
 #include <iostream>
 class Automovel {
   Motor m_engine;
